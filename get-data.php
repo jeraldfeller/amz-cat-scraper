@@ -1,7 +1,7 @@
 <?php
 require '/var/www/html/amazon-cat-scraper/Model/Init.php';
 require '/var/www/html/amazon-cat-scraper/Model/Scraper.php';
-require '/var/www/html/amazon-cat-scraper/Model/simple_html_dom.php';
+require '/var/www/html/amazon-cat-scraper/simple_html_dom.php';
 //require 'Model/Init.php';
 //require 'Model/Scraper.php';
 //require 'simple_html_dom.php';
