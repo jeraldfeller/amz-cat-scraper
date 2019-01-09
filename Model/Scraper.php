@@ -152,10 +152,10 @@ class Scraper
 
         $port = '47647';
         $proxy = array(
-//            '108.62.95.53',
+            '108.62.95.53',
             '8.29.120.33',
             '167.160.106.219',
-//            '108.62.204.149',
+            '108.62.204.149',
             '108.62.54.111',
             '45.59.19.79',
         );
@@ -171,10 +171,10 @@ class Scraper
             CURLOPT_TIMEOUT => 30,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "GET",
-//            CURLOPT_PROXYTYPE => CURLPROXY_HTTP,
-//            CURLOPT_PROXY => $ip,
-//            CURLOPT_PROXYPORT => '47647',
-//            CURLOPT_PROXYUSERPWD => 'ebymarket:dfab7c358',
+            CURLOPT_PROXYTYPE => CURLPROXY_HTTP,
+            CURLOPT_PROXY => $ip,
+            CURLOPT_PROXYPORT => '47647',
+            CURLOPT_PROXYUSERPWD => 'ebymarket:dfab7c358',
             CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36',
             CURLOPT_HTTPHEADER => array(
                 "Cache-Control: no-cache",
