@@ -14,7 +14,7 @@ define('DB_DSN','mysql:host=' . DB_HOST . ';dbname=' . DB_NAME);
 
 define('ROOT_DIR', '');
 define('NO_REPLY_EMAIL', 'noreply@ec2-18-216-253-6.us-east-2.compute.amazonaws.com');
-define('ADMIN_EMAIL', 'jeraldfeller@gmail.com');
+define('ADMIN_EMAIL', 'JamilyFam5@gmail.com');
 define('ROOT_DOMAIN', 'http://ec2-18-216-253-6.us-east-2.compute.amazonaws.com/amazon-cat-scraper/');
 define('MARKET_LIMIT_COUNT', 250); // rows25 of data fetched per execution
 define('PERCENTAGE_TARGET', 20);

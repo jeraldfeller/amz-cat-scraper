@@ -42,11 +42,27 @@ class Scraper
     }
 
     public function insertProductLink($name, $url, $asin, $price, $rank){
+        // check asin if already exists
+        if(!$this->checkAsin($asin)){
+            $pdo = $this->getPdo();
+            $sql = 'INSERT INTO `product_link` SET `category` = "'.$name.'", `url` = "'.$url.'", `asin` = "'.$asin.'", `price` = '.$price.', `rank` = '.$rank;
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute();
+            $pdo = null;
+        }
+    }
+
+
+    public function checkAsin($asin){
         $pdo = $this->getPdo();
-        $sql = 'INSERT INTO `product_link` SET `category` = "'.$name.'", `url` = "'.$url.'", `asin` = "'.$asin.'", `price` = '.$price.', `rank` = '.$rank;
+        $sql = 'SELECT `id` FROM `product_link` WHERE `asin` = "'.$asin.'"';
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
         $pdo = null;
+
+
+        return $result;
     }
 
 
@@ -84,7 +100,7 @@ class Scraper
             $email = new PHPMailer();
             $email->From = NO_REPLY_EMAIL;
             $email->FromName = NO_REPLY_EMAIL;
-            $email->Subject = 'Ebay Product Reports';
+            $email->Subject = 'Amazon Product Reports';
             $email->Body = $message;
             $email->IsHTML(true);
             $email->AddAddress('jeraldfeller@gmail.com');
