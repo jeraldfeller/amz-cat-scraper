@@ -1,12 +1,14 @@
 <?php
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+
 class Scraper
 {
     public $debug = TRUE;
     protected $db_pdo;
 
-    public function getCategory(){
+    public function getCategory()
+    {
         $pdo = $this->getPdo();
         $sql = 'SELECT *
                   FROM `categories` WHERE `status` = 0 LIMIT 1
@@ -24,7 +26,8 @@ class Scraper
         return $content;
     }
 
-    public function getProductLink(){
+    public function getProductLink()
+    {
         $pdo = $this->getPdo();
         $sql = 'SELECT * FROM `product_link` WHERE `status` = 0 LIMIT 5';
         $stmt = $pdo->prepare($sql);
@@ -41,11 +44,12 @@ class Scraper
         return $content;
     }
 
-    public function insertProductLink($name, $url, $asin, $price, $rank){
+    public function insertProductLink($name, $url, $asin, $price, $rank)
+    {
         // check asin if already exists
-        if(!$this->checkAsin($asin)){
+        if (!$this->checkAsin($asin)) {
             $pdo = $this->getPdo();
-            $sql = 'INSERT INTO `product_link` SET `category` = "'.$name.'", `url` = "'.$url.'", `asin` = "'.$asin.'", `price` = '.$price.', `rank` = '.$rank;
+            $sql = 'INSERT INTO `product_link` SET `category` = "' . $name . '", `url` = "' . $url . '", `asin` = "' . $asin . '", `price` = ' . $price . ', `rank` = ' . $rank;
             $stmt = $pdo->prepare($sql);
             $stmt->execute();
             $pdo = null;
@@ -53,9 +57,10 @@ class Scraper
     }
 
 
-    public function checkAsin($asin){
+    public function checkAsin($asin)
+    {
         $pdo = $this->getPdo();
-        $sql = 'SELECT `id` FROM `product_link` WHERE `asin` = "'.$asin.'"';
+        $sql = 'SELECT `id` FROM `product_link` WHERE `asin` = "' . $asin . '"';
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -66,16 +71,18 @@ class Scraper
     }
 
 
-    public function updateProduct($id, $price){
+    public function updateProduct($id, $price)
+    {
         $pdo = $this->getPdo();
-        $sql = 'UPDATE `product_link` SET `ts_seller` = '.$price . ' WHERE `id` = '.$id;
+        $sql = 'UPDATE `product_link` SET `ts_seller` = ' . $price . ' WHERE `id` = ' . $id;
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
         $pdo = null;
     }
 
 
-    public function getProducts(){
+    public function getProducts()
+    {
         $pdo = $this->getPdo();
         $sql = 'SELECT * FROM `product_link` WHERE `status` = 1';
         $stmt = $pdo->prepare($sql);
@@ -92,7 +99,7 @@ class Scraper
     public function sendOutPut()
     {
         $status = $this->checkStatus();
-        if($status == true){
+        if ($status == true) {
             $date = date('Y-m-d');
             $message = '<h2>Amazon Product Reports</h2><br>';
             $message .= 'Product list: ' . ROOT_DOMAIN . 'reports/amazon_products_' . $date . '.csv <br>';
@@ -121,7 +128,8 @@ class Scraper
 
     }
 
-    public function checkStatus(){
+    public function checkStatus()
+    {
         $pdo = $this->getPdo();
         $sql = 'SELECT * FROM `process_status` WHERE id = 1';
         $stmt = $pdo->prepare($sql);
@@ -137,16 +145,43 @@ class Scraper
         $stmt->execute();
         $return = $stmt->fetch(PDO::FETCH_ASSOC);
         $pdo = null;
-        if($return['totalCount'] == 0 && $content['email_sent'] == 0){
+        if ($return['totalCount'] == 0 && $content['email_sent'] == 0) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
+    public function checkGetDataStatus()
+    {
+        $pdo = $this->getPdo();
+        $sql = 'SELECT count(`id`) as totalCount FROM `categories` WHERE status = 0';
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result['totalCount'] == 0) {
+            $sql = 'UPDATE `process_status` SET `get_data_status` = 1';
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute();
+        }
+    }
 
 
-    public function reset(){
+    public function checkDataStatus()
+    {
+        $pdo = $this->getPdo();
+        $sql = 'SELECT `get_data_status` FROM `process_status`';
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $pdo = null;
+        return $result;
+    }
+
+
+    public function reset()
+    {
         $pdo = $this->getPdo();
         $sql = 'DELETE FROM `product_link`';
         $stmt = $pdo->prepare($sql);
@@ -166,17 +201,31 @@ class Scraper
     public function curlTo($url)
     {
 
-        $port = '47647';
-        $proxy = array(
-            '45.59.21.152',
-            '45.59.25.15',
-            '206.223.253.17',
-            '108.62.193.79',
-            '23.19.36.161',
-            '23.19.37.119',
-        );
+        $port = ['47647', '55034'];
 
-        $ip = $proxy[mt_rand(0, count($proxy) - 1)];
+
+        $proxy = [
+            array(
+                '45.59.21.152',
+                '45.59.25.15',
+                '206.223.253.17',
+                '108.62.193.79',
+                '23.19.36.161',
+                '23.19.37.119',
+            ),
+            array(
+                '108.62.183.170',
+                '172.241.132.229',
+                '107.182.118.25',
+                '46.251.232.10',
+                '196.17.104.172',
+                '94.242.244.199'
+            )];
+
+
+
+        $rand = mt_rand(0, 1);
+        $ip = $proxy[$rand][mt_rand(0, count($proxy) - 1)];
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
@@ -189,7 +238,7 @@ class Scraper
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_PROXYTYPE => CURLPROXY_HTTP,
             CURLOPT_PROXY => $ip,
-            CURLOPT_PROXYPORT => '47647',
+            CURLOPT_PROXYPORT => $port[$rand],
             CURLOPT_PROXYUSERPWD => 'ebymarket:dfab7c358',
             CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36',
             CURLOPT_HTTPHEADER => array(
